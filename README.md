@@ -69,6 +69,19 @@ python -m http.server -d _site
 
 Puis ouvrir `http://localhost:8000`.
 
+## Publication GitHub Pages
+
+Le workflow `.github/workflows/deploy.yml` publie le contenu genere dans `_site/`.
+
+Configurer une seule fois dans GitHub:
+
+1. `Settings` -> `Pages`
+2. `Build and deployment` -> `Source`: **GitHub Actions**
+
+Note: en mode `Deploy from a branch`, GitHub n'autorise que `/(root)` ou `/docs`, pas `/_site`.
+
+Ensuite, chaque push sur `main` reconstruit et deploie automatiquement la page.
+
 ## Templates
 
 Le template par defaut est `templates/tailwind.html.j2`.
