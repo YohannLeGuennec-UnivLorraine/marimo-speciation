@@ -23,11 +23,28 @@ The exported files will be placed in the specified output directory (default: _s
 import subprocess
 from typing import List, Union
 from pathlib import Path
+import shutil
 
 import jinja2
 import fire
 
 from loguru import logger
+
+
+def _write_nojekyll(output_dir: Path) -> None:
+    """Create a .nojekyll file to bypass Jekyll processing on GitHub Pages."""
+    (output_dir / ".nojekyll").write_text("", encoding="utf-8", newline="\n")
+
+
+def _sync_directory(source_dir: Path, target_dir: Path) -> None:
+    """Mirror source_dir into target_dir."""
+    if source_dir.resolve() == target_dir.resolve():
+        return
+
+    if target_dir.exists():
+        shutil.rmtree(target_dir)
+
+    shutil.copytree(source_dir, target_dir)
 
 def _export_html_wasm(notebook_path: Path, output_dir: Path, as_app: bool = False) -> bool:
     """Export a single marimo notebook to HTML/WebAssembly format.
@@ -178,6 +195,7 @@ def _export(folder: Path, output_dir: Path, as_app: bool=False) -> List[dict]:
 def main(
     output_dir: Union[str, Path] = "_site",
     template: Union[str, Path] = "templates/tailwind.html.j2",
+    sync_docs: bool = True,
 ) -> None:
     """Main function to export marimo notebooks.
 
@@ -189,6 +207,7 @@ def main(
     Command line arguments:
         --output-dir: Directory where the exported files will be saved (default: _site)
         --template: Path to the template file (default: templates/index.html.j2)
+        --sync-docs: Mirror output to docs/ for GitHub Pages branch deployment (default: True)
 
     Returns:
         None
@@ -219,6 +238,16 @@ def main(
 
     # Generate the index.html file that lists all notebooks and apps
     _generate_index(output_dir=output_dir, notebooks_data=notebooks_data, apps_data=apps_data, template_file=template_file)
+
+    # Ensure Pages branch deployment bypasses Jekyll filtering on underscore paths.
+    _write_nojekyll(output_dir)
+
+    # Keep docs/ in sync so GitHub Pages can publish from "main /docs" without Actions.
+    if sync_docs:
+        docs_dir = Path("docs")
+        _sync_directory(output_dir, docs_dir)
+        _write_nojekyll(docs_dir)
+        logger.info(f"Synchronized {output_dir} to {docs_dir}")
 
     logger.info(f"Build completed successfully. Output directory: {output_dir}")
 

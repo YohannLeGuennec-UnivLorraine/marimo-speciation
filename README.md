@@ -60,6 +60,7 @@ uv run .github/scripts/build.py
 ```
 
 Le build genere le site dans `_site/`.
+Par defaut, il synchronise aussi le resultat vers `docs/` (source GitHub Pages sans Actions).
 
 Pour le servir en local:
 
@@ -71,16 +72,22 @@ Puis ouvrir `http://localhost:8000`.
 
 ## Publication GitHub Pages
 
-Le workflow `.github/workflows/deploy.yml` publie le contenu genere dans `_site/`.
+GitHub Pages ne permet pas d'utiliser `/_site` directement en mode "Deploy from a branch".
+Les seules options sont `/(root)` ou `/docs`.
 
 Configurer une seule fois dans GitHub:
 
 1. `Settings` -> `Pages`
-2. `Build and deployment` -> `Source`: **GitHub Actions**
+2. `Build and deployment` -> `Source`: **Deploy from a branch**
+3. `Branch`: `main`
+4. `Folder`: `/docs`
 
-Note: en mode `Deploy from a branch`, GitHub n'autorise que `/(root)` ou `/docs`, pas `/_site`.
+Ensuite:
 
-Ensuite, chaque push sur `main` reconstruit et deploie automatiquement la page.
+1. Lancer le build localement (`uv run .github/scripts/build.py`)
+2. Commit/push les changements (dont `docs/`)
+
+GitHub Pages publiera le contenu de `docs/` automatiquement.
 
 ## Templates
 

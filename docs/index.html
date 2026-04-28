@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Simulations interactives de spéciation en solution et explications des méthodes numériques de résolution utilisées.">
+  <title>Spéciation en solution | Simulations et méthodes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fc;
+      --paper: #ffffff;
+      --ink: #1c2433;
+      --ink-soft: #4a5568;
+      --line: #d7e0ee;
+      --primary: #103b74;
+      --primary-soft: #e7effb;
+      --accent: #0a7661;
+      --accent-soft: #e7f7f2;
+      --shadow: 0 12px 30px rgba(16, 42, 77, 0.08);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, #e8eefb 0%, rgba(232, 238, 251, 0) 38%),
+        radial-gradient(circle at 90% 5%, #e5f4f0 0%, rgba(229, 244, 240, 0) 34%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      padding: 32px 20px 56px;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      background: linear-gradient(132deg, rgba(255, 255, 255, 0.94) 0%, rgba(244, 248, 255, 0.96) 100%);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 42px 40px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(2px);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    h1, h2, h3 {
+      font-family: "Source Serif 4", Georgia, serif;
+      margin: 0;
+      line-height: 1.2;
+      color: #172033;
+    }
+
+    h1 {
+      font-size: clamp(1.95rem, 4vw, 2.75rem);
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      margin: 0;
+    }
+
+    .lead {
+      max-width: 820px;
+      color: var(--ink-soft);
+      font-size: 1.06rem;
+      margin-bottom: 22px;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.92rem;
+      color: #2a3650;
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(16, 59, 116, 0.24);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid #bfd0ea;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .section {
+      margin-top: 30px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .section h2 {
+      font-size: clamp(1.4rem, 2.7vw, 1.95rem);
+      margin-bottom: 8px;
+    }
+
+    .section-intro {
+      margin: 0 0 18px;
+      color: var(--ink-soft);
+      max-width: 880px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feature {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+    }
+
+    .feature h3 {
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .method {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background: #fcfdff;
+    }
+
+    .method h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .method p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.94rem;
+    }
+
+    .formula-box {
+      margin-top: 14px;
+      border: 1px dashed #c4d3ea;
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      background: #f7faff;
+      font-size: 0.92rem;
+      color: #29405e;
+    }
+
+    .formula-box code {
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: #173053;
+    }
+
+    .group {
+      margin-top: 20px;
+    }
+
+    .group h3 {
+      font-size: 1.3rem;
+      margin-bottom: 6px;
+    }
+
+    .group p {
+      margin: 0 0 14px;
+      color: var(--ink-soft);
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .resource-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 220px;
+    }
+
+    .resource-head {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 9px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    .pill-notebook {
+      background: var(--primary-soft);
+      color: #1e4d8f;
+    }
+
+    .pill-app {
+      background: var(--accent-soft);
+      color: #0f6f5c;
+    }
+
+    .resource-name {
+      font-weight: 700;
+      color: #1c2b44;
+    }
+
+    .resource-desc {
+      margin: 0 0 14px;
+      color: var(--ink-soft);
+      font-size: 0.93rem;
+      flex: 1;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      border: 1px solid #cdd8ea;
+      color: #334c6e;
+      background: #f9fbff;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .resource-link {
+      display: inline-flex;
+      align-self: flex-start;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      background: var(--primary);
+    }
+
+    .resource-link.app {
+      background: var(--accent);
+    }
+
+    .empty {
+      margin-top: 16px;
+      border: 1px dashed #b8c9e4;
+      background: #f7fbff;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      color: #35517a;
+    }
+
+    footer {
+      margin-top: 24px;
+      padding: 18px 2px 0;
+      color: #4f5e74;
+      border-top: 1px solid var(--line);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    @media (max-width: 980px) {
+      .feature-grid,
+      .resource-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 18px 12px 32px;
+      }
+
+      .hero {
+        padding: 24px 20px;
+      }
+
+      .section {
+        padding: 20px 16px;
+      }
+
+      .feature-grid,
+      .method-grid,
+      .resource-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  
+
+  <div class="container">
+    <header class="hero" id="top">
+      <p class="eyebrow">Plateforme pédagogique et de recherche</p>
+      <h1>Simulations de spéciation en solution</h1>
+      <p class="lead">
+        Cette page centralise des simulations interactives de chimie des solutions et
+        les principes numériques utilisés pour les résoudre. Vous y trouverez des cas d'étude
+        directement manipulables, conçus pour un usage universitaire.
+      </p>
+      <div class="stat-row">
+        <span class="stat">4 ressources interactives</span>
+        
+        <span class="stat">4 notebooks de simulation</span>
+        
+        <span class="stat">0 apps d'exploration</span>
+        <span class="stat">Export WebAssembly exécutable dans le navigateur</span>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#bibliotheque">Accéder aux contenus</a>
+        <a class="btn btn-secondary" href="#methodes">Voir les méthodes de résolution</a>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2>Ce que vous trouverez</h2>
+      <p class="section-intro">
+        Le contenu est structuré pour faciliter à la fois l'apprentissage conceptuel
+        et l'analyse quantitative: paramétrage des systèmes, visualisations de spéciation,
+        indicateurs d'équilibre et interprétation des résultats.
+      </p>
+      <div class="feature-grid">
+        <article class="feature">
+          <h3>Cas chimiques réalistes</h3>
+          <p>Acido-basicité, complexation, redox et précipitation, avec bilans matière cohérents et variables thermodynamiques explicites.</p>
+        </article>
+        <article class="feature">
+          <h3>Analyse interactive</h3>
+          <p>Modification des paramètres d'entrée, recalcul immédiat et comparaison visuelle des régimes de spéciation.</p>
+        </article>
+        <article class="feature">
+          <h3>Lecture scientifique</h3>
+          <p>Tableaux et tracés conçus pour une interprétation claire des concentrations, pH, potentiels et critères de convergence.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="methodes">
+      <h2>Méthodes de résolution employées</h2>
+      <p class="section-intro">
+        Les modèles reposent sur une formulation rigoureuse des équilibres en solution
+        suivie d'une résolution numérique non linéaire.
+      </p>
+      <div class="method-grid">
+        <article class="method">
+          <h3>1. Formulation thermodynamique</h3>
+          <p>Bilan des éléments, lois d'action de masse (logK) et, pour les couples redox, potentiels standards reliés aux constantes d'équilibre.</p>
+        </article>
+        <article class="method">
+          <h3>2. Variables logarithmiques</h3>
+          <p>La résolution se fait sur les logarithmes des concentrations, ce qui stabilise le calcul et garantit la positivité des espèces.</p>
+        </article>
+        <article class="method">
+          <h3>3. Résolution non linéaire</h3>
+          <p>Le système d'équations est traité par moindres carrés non linéaires (`least_squares`) avec critères stricts de convergence.</p>
+        </article>
+        <article class="method">
+          <h3>4. Balayages paramétriques</h3>
+          <p>Des grilles logarithmiques et la continuation numérique permettent d'explorer efficacement la réponse du système.</p>
+        </article>
+      </div>
+      <div class="formula-box">
+        <strong>Schéma de calcul :</strong>
+        <code>bilans + équilibres chimiques + contraintes redox -> système non linéaire -> concentrations d'équilibre, pH, E</code>
+      </div>
+    </section>
+
+    <section class="section" id="bibliotheque">
+      <h2>Bibliothèque interactive</h2>
+      
+      <p class="section-intro">
+        Ouvrez un notebook pour éditer les paramètres et visualiser les résultats, ou une app pour une interface simplifiée en mode exécution.
+      </p>
+      
+
+      
+      <div class="group">
+        <h3>Notebooks (mode édition)</h3>
+        <p>Accès complet au modèle et aux sorties pour l'analyse détaillée.</p>
+        <div class="resource-grid">
+          
+          
+          <article class="resource-card">
+            <div class="resource-head">
+              <span class="pill pill-notebook">Notebook</span>
+              <span class="resource-name">Exemple 1 H2So4 H2O</span>
+            </div>
+            <p class="resource-desc">
+              Simulation de spéciation en solution avec exploration interactive des paramètres et diagnostics d'équilibre.
+            </p>
+            <div class="tag-row">
+              
+              
+              
+              
+              <span class="tag">Acido-basicité</span>
+              
+              <span class="tag">Simulation interactive</span>
+            </div>
+            <a href="notebooks\exemple_1_H2SO4_H2O.html" class="resource-link">Ouvrir le notebook</a>
+          </article>
+          
+          
+          <article class="resource-card">
+            <div class="resource-head">
+              <span class="pill pill-notebook">Notebook</span>
+              <span class="resource-name">Exemple 2 Nicl2 Nh3 H2O</span>
+            </div>
+            <p class="resource-desc">
+              Simulation de spéciation en solution avec exploration interactive des paramètres et diagnostics d'équilibre.
+            </p>
+            <div class="tag-row">
+              
+              
+              
+              <span class="tag">Complexation</span>
+              
+              
+              <span class="tag">Simulation interactive</span>
+            </div>
+            <a href="notebooks\exemple_2_NiCl2_NH3_H2O.html" class="resource-link">Ouvrir le notebook</a>
+          </article>
+          
+          
+          <article class="resource-card">
+            <div class="resource-head">
+              <span class="pill pill-notebook">Notebook</span>
+              <span class="resource-name">Exemple 3 Fecl2 H2O</span>
+            </div>
+            <p class="resource-desc">
+              Simulation de spéciation en solution avec exploration interactive des paramètres et diagnostics d'équilibre.
+            </p>
+            <div class="tag-row">
+              
+              <span class="tag">Redox</span>
+              
+              
+              
+              
+              <span class="tag">Simulation interactive</span>
+            </div>
+            <a href="notebooks\exemple_3_FeCl2_H2O.html" class="resource-link">Ouvrir le notebook</a>
+          </article>
+          
+          
+          <article class="resource-card">
+            <div class="resource-head">
+              <span class="pill pill-notebook">Notebook</span>
+              <span class="resource-name">Exemple 4 Agcl H2O</span>
+            </div>
+            <p class="resource-desc">
+              Simulation de spéciation en solution avec exploration interactive des paramètres et diagnostics d'équilibre.
+            </p>
+            <div class="tag-row">
+              
+              
+              <span class="tag">Précipitation</span>
+              
+              
+              
+              <span class="tag">Simulation interactive</span>
+            </div>
+            <a href="notebooks\exemple_4_AgCl_H2O.html" class="resource-link">Ouvrir le notebook</a>
+          </article>
+          
+        </div>
+      </div>
+      
+
+      
+
+      
+    </section>
+
+    <footer>
+      Développé avec <a href="https://marimo.io" target="_blank" rel="noopener noreferrer">marimo</a> pour des notebooks Python interactifs, reproductibles et publiables.
+    </footer>
+  </div>
+</body>
+</html>
