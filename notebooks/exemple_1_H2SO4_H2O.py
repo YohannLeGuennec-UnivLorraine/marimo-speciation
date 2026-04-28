@@ -28,33 +28,21 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # Équilibre non linéaire du système $\mathrm{H_2SO_4/H_2O}$
+        # Equilibre non lineaire du systeme $H_2SO_4$/$H_2O$
 
-        Ce notebook Marimo formalise un problème de spéciation acide-base
-        avec 6 espèces :
-        $[\mathrm{H_2O}], [\mathrm{H^+}], [\mathrm{HO^-}], [\mathrm{H_2SO_4}], [\mathrm{HSO_4^-}], [\mathrm{SO_4^{2-}}]$.
+        Ce notebook Marimo resout un systeme non lineaire a 6 inconnues
+        en utilisant 3 bilans d'atomes et 3 lois d'action de masse.
 
-        À partir de la structure présentée dans le support de cours :
-        $$\dim(\text{espèces}) = \dim(\text{réactions}) + \dim(\text{conservations})$$
-        on construit ici un système carré :
+        ## Modele
+        1. Bilans de conservation a partir des quantites initiales.
+        2. Equilibres chimiques:
+           H$_2$O <=> H$^+$ + HO$^-$  
+           H$_2$SO$_4$ <=> HSO$_4^-$ + H$^+$  
+           HSO$_4^-$ <=> SO$_4^{2-}$ + H$^+$
+        3. Resolution en variables logarithmiques
+           $y_i = \ln C_i$, donc $C_i = \exp(y_i) > 0$.
 
-        - 6 inconnues  
-          (concentrations à l'équilibre)
-        - 3 lois d'action de masse  
-          (eau + deux dissociations de $\mathrm{H_2SO_4}$)
-        - 3 bilans atomiques indépendants  
-          (H, O, S ; forme pseudo-atomique possible)
-
-        ## Hypothèses et fermeture du modèle
-        1. Milieu homogène, volume liquide imposé par l'utilisateur.
-        2. Données thermodynamiques imposées via $K_w$, $K_{a,1}$ et $K_{a,2}$.
-        3. Bilans de conservation écrits sous forme *Initial = Final*.
-
-        ## Point de méthode important
-        L'électroneutralité n'est pas utilisée comme équation de fermeture :
-        elle doit émerger naturellement de la combinaison
-        *conservation de la matière + équilibres chimiques*.
-        Le notebook la calcule ensuite comme indicateur de qualité de la solution.
+        Le systeme est carre: nombre d'especes = nombre de reactions + nombre de conservations.
         """
     )
     return
@@ -63,7 +51,7 @@ def _(mo):
 @app.cell
 def _(mo):
     n_h2so4_0 = mo.ui.number(
-        value=0.05, start=1e-9, step=1e-12, label=r"$n^0_{H_2SO_4}$ [mol]"
+        value=0.05, start=1e-9, step=0.01, label=r"$n^0_{H_2SO_4}$ [mol]"
     )
     n_h2o_0 = mo.ui.number(value=55.5, start=1e-6, step=0.5, label=r"$n^0_{H_2O}$ [mol]")
     V = mo.ui.number(value=1.0, start=1e-4, step=0.1, label=r"$V$ [L]")
@@ -72,7 +60,7 @@ def _(mo):
     pKa2 = mo.ui.number(value=1.99, step=0.01, label=r"$pK_{a,2}$")
     pKw = mo.ui.number(value=14.0, step=0.01, label=r"$pK_w$")
 
-    mo.md("## Paramètres du problème")
+    mo.md("## Parametres du probleme")
     mo.vstack(
         [
             mo.hstack([n_h2so4_0, n_h2o_0, V]),
@@ -103,9 +91,9 @@ def _(V, n_h2o_0, n_h2so4_0, pKa1, pKa2, pKw):
 def _(mo):
     mo.md(
         r"""
-        ## Section 1 - Équilibre pour une charge fixée
+        ## Section 1 - Equilibre pour une charge fixee
 
-        Cette section calcule l'équilibre pour une valeur unique de
+        Cette section calcule l'equilibre pour une valeur unique de
         $n_{H_2SO_4}^0$.
         """
     )
@@ -331,12 +319,12 @@ def _(np, plt, solution):
 def _(mo):
     mo.md(
         r"""
-        ## Section 2 - Balayage itératif en $n_{H_2SO_4}^0$
+        ## Section 2 - Balayage iteratif en $n_{H_2SO_4}^0$
 
-        Les graphiques suivants réalisent une boucle itérative sur
+        Les graphiques suivants realisent une boucle iterative sur
         $n_{H_2SO_4}^0$ entre une borne minimale et maximale.
-        À chaque itération, la solution précédente initialise la suivante
-        pour améliorer la robustesse numérique.
+        A chaque iteration, la solution precedente initialise la suivante
+        pour ameliorer la robustesse numerique.
         """
     )
     return
@@ -345,7 +333,7 @@ def _(mo):
 @app.cell
 def _(mo):
     n_h2so4_0_min = mo.ui.number(
-        value=1e-6,
+        value=1e-4,
         start=1e-8,
         step=1e-12,
         label=r"$n_{H_2SO_4}^{0,min}$ [mol]",
@@ -358,7 +346,7 @@ def _(mo):
     )
     npts = mo.ui.slider(20, 200, value=80, step=10, label="Points de simulation")
 
-    mo.md("## Paramètres de la simulation")
+    mo.md("## Parametres de la simulation")
     mo.hstack([n_h2so4_0_min, n_h2so4_0_max, npts])
     return n_h2so4_0_max, n_h2so4_0_min, npts
 
