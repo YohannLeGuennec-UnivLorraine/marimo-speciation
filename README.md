@@ -1,68 +1,82 @@
-# marimo WebAssembly + GitHub Pages Template
+# marimo Speciation Site
 
-This template repository demonstrates how to export [marimo](https://marimo.io) notebooks to WebAssembly and deploy them to GitHub Pages.
+Ce repository exporte des notebooks marimo en HTML/WebAssembly et publie le resultat sur GitHub Pages.
 
-## 📚 Included Examples
+## Ce qui est fait dans les notebooks
 
-- `apps/charts.py`: Interactive data visualization with Altair
-- `notebooks/fibonacci.py`: Interactive Fibonacci sequence calculator
-- `notebooks/penguins.py`: Interactive data analysis with Polars and marimo
+Tous les notebooks suivent la meme logique numerique:
 
-## 🚀 Usage
+1. Definition d'un systeme d'equilibre chimique (bilans + lois d'action de masse).
+2. Resolution non lineaire avec `scipy.optimize.least_squares` en variables logarithmiques.
+3. Verification des residus, des bilans de matiere et de l'electroneutralite (controle a posteriori).
+4. Visualisations: pH, repartition/speciation et balayages parametriques.
 
-1. Fork this repository
-2. Add your marimo files to the `notebooks/` or `apps/` directory
-   1. `notebooks/` notebooks are exported with `--mode edit`
-   2. `apps/` notebooks are exported with `--mode run`
-3. Push to main branch
-4. Go to repository **Settings > Pages** and change the "Source" dropdown to "GitHub Actions"
-5. GitHub Actions will automatically build and deploy to Pages
+### `notebooks/exemple_1_H2SO4_H2O.py`
 
-## Including data or assets
+- Systeme acido-basique `H2SO4/H2O`.
+- Calcule l'equilibre pour une charge initiale donnee.
+- Realise un balayage iteratif en `n(H2SO4)^0` et trace:
+  - pH vs `n(H2SO4)^0`
+  - concentrations d'equilibre (speciation) vs `n(H2SO4)^0`
+  - concentrations vs pH
+  - fractions de distribution sulfate.
 
-To include data or assets in your notebooks, add them to the `public/` directory.
+### `notebooks/exemple_2_NiCl2_NH3_H2O.py`
 
-For example, the `apps/charts.py` notebook loads an image asset from the `public/` directory.
+- Systeme de complexation `NiCl2/NH3/H2O`.
+- Prend en compte:
+  - autoprotolyse de l'eau
+  - couple `NH4+/NH3`
+  - complexe `Ni(NH3)6^2+`.
+- Fournit un etat d'equilibre (table des especes + diagnostics) puis un balayage en `n(NH3)^0`.
+- Trace pH et speciation en fonction de `n(NH3)^0` et du pH.
 
-```markdown
-<img src="public/logo.png" width="200" />
-```
+### `notebooks/exemple_3_FeCl2_H2O.py`
 
-And the `notebooks/penguins.py` notebook loads a CSV dataset from the `public/` directory.
+- Systeme redox `FeCl2/H2O/O2`.
+- Modele avec especes redox (`Fe3+`, `Fe2+`, `e-`) et `O2` dissous.
+- Conversion des potentiels standards `E0` en constantes d'equilibre, puis resolution du systeme complet.
+- Sorties principales:
+  - pH d'equilibre
+  - potentiel redox (Nernst)
+  - speciation fer/oxygene
+  - balayage en `n(FeCl2)^0`.
 
-```python
-import polars as pl
-df = pl.read_csv(mo.notebook_location() / "public" / "penguins.csv")
-```
+### `notebooks/exemple_4_AgCl_H2O.py`
 
-## 🎨 Templates
+- Systeme avec dissolution/precipitation `AgCl(s) <-> Ag+ + Cl-`.
+- Resolution d'equilibre pour une charge initiale, puis balayage en `n(AgCl)^0`.
+- Visualise l'effet sur le pH et sur les concentrations des especes dissoutes/solide.
 
-This repository includes several templates for the generated site:
+## Structure `notebooks/` vs `apps/`
 
-1. `index.html.j2` (default): A template with styling and a footer
-2. `bare.html.j2`: A minimal template with basic styling
-3. `tailwind.html.j2`: A minimal and lean template using Tailwind CSS
+- `notebooks/`: export en mode edition (`--mode edit`), avec code visible/modifiable.
+- `apps/`: export en mode execution (`--mode run --no-show-code`), interface simplifiee pour usage "application".
 
-To use a specific template, pass the `--template` parameter to the build script:
-
-```bash
-uv run .github/scripts/build.py --template templates/tailwind.html.j2
-```
-
-You can also create your own custom templates. See the [templates/README.md](templates/README.md) for more information.
-
-## 🧪 Testing
-
-To test the export process, run `.github/scripts/build.py` from the root directory.
+## Build
 
 ```bash
 uv run .github/scripts/build.py
 ```
 
-This will export all notebooks in a folder called `_site/` in the root directory. Then to serve the site, run:
+Le build genere le site dans `_site/`.
+
+Pour le servir en local:
 
 ```bash
 python -m http.server -d _site
 ```
 
-This will serve the site at `http://localhost:8000`.
+Puis ouvrir `http://localhost:8000`.
+
+## Templates
+
+Le template par defaut est `templates/tailwind.html.j2`.
+
+Pour en utiliser un autre:
+
+```bash
+uv run .github/scripts/build.py --template templates/index.html.j2
+```
+
+Voir aussi `templates/README.md`.
