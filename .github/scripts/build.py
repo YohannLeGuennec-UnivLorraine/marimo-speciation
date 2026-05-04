@@ -46,6 +46,11 @@ def _sync_directory(source_dir: Path, target_dir: Path) -> None:
 
     shutil.copytree(source_dir, target_dir)
 
+
+def _web_path(path: Path) -> str:
+    """Return a relative path formatted for URLs."""
+    return path.as_posix()
+
 def _export_html_wasm(notebook_path: Path, output_dir: Path, as_app: bool = False) -> bool:
     """Export a single marimo notebook to HTML/WebAssembly format.
 
@@ -183,7 +188,7 @@ def _export(folder: Path, output_dir: Path, as_app: bool=False) -> List[dict]:
     notebook_data = [
         {
             "display_name": (nb.stem.replace("_", " ").title()),
-            "html_path": str(nb.with_suffix(".html")),
+            "html_path": _web_path(nb.with_suffix(".html")),
         }
         for nb in notebooks
         if _export_html_wasm(nb, output_dir, as_app=as_app)
